@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Drive control room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<style>
+:root{--bg:#E6E9ED;--surface:#F4F6F8;--raise:#FFFFFF;--ink:#17202A;--muted:#566170;--rule:#C9D0D8;--cord:#A9B3BF;--blue:#2357B5;--blue-soft:#DCE5F6;--amber:#C08A0C;--amber-ink:#7A5300;--amber-soft:#F6EACB;--green:#1E7A49;--green-soft:#D6ECDE;--red:#B3372B;--red-soft:#F5DCD8;--on:#FFFFFF;--scrim:rgba(15,20,26,.45);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F141A;--surface:#161D25;--raise:#1C252F;--ink:#E3E8ED;--muted:#9AA5B1;--rule:#2C3641;--cord:#4C5968;--blue:#7DA4EE;--blue-soft:#1B2A45;--amber:#E2B23F;--amber-ink:#F0CA6E;--amber-soft:#3A2F16;--green:#5AB887;--green-soft:#15301F;--red:#E6766A;--red-soft:#3B1F1C;--on:#0F141A;--scrim:rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F141A;--surface:#161D25;--raise:#1C252F;--ink:#E3E8ED;--muted:#9AA5B1;--rule:#2C3641;--cord:#4C5968;--blue:#7DA4EE;--blue-soft:#1B2A45;--amber:#E2B23F;--amber-ink:#F0CA6E;--amber-soft:#3A2F16;--green:#5AB887;--green-soft:#15301F;--red:#E6766A;--red-soft:#3B1F1C;--on:#0F141A;--scrim:rgba(0,0,0,.6);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 "Archivo","Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.wrap{max-width:1180px;margin:0 auto;padding-left:20px;padding-right:20px}
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between;padding-top:22px;padding-bottom:16px}
+h1{font-stretch:75%;font-weight:760;font-size:32px;line-height:1.05;margin:0;letter-spacing:-.01em}
+h2{font-stretch:85%;font-weight:720;font-size:24px;line-height:1.15;margin:0 0 8px}
+h3{font-size:15px;font-weight:650;margin:22px 0 8px}
+.sub{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:70ch}
+.acts,.row-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row-acts{margin-top:14px}
+.btn{font:inherit;font-size:14px;font-weight:600;min-height:40px;padding:8px 14px;border-radius:6px;border:1px solid var(--rule);background:var(--raise);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:var(--on)}
+.btn.ghost{background:transparent}
+.btn[disabled]{opacity:.55;cursor:progress}
+.mini{font:inherit;font-size:12px;font-weight:600;padding:3px 8px;border-radius:5px;border:1px solid var(--rule);background:var(--raise);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,#file:focus-visible+label{outline:2px solid var(--blue);outline-offset:2px}
+.flow{background:var(--surface);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.flow .wrap{padding-top:18px;padding-bottom:14px}
+.scroller{overflow-x:auto}
+.track{min-width:720px}
+.stages{display:grid;grid-template-columns:repeat(6,1fr)}
+.stage{padding:0 6px;text-align:center}
+.stage .n{font-stretch:62%;font-weight:800;font-size:clamp(40px,5.2vw,62px);line-height:1}
+.stage .l{font-weight:650;font-size:14px;margin-top:6px}
+.stage .d{font-size:12.5px;color:var(--muted);min-height:1.5em}
+#band{display:block;width:100%;height:56px;margin-top:8px}
+#band.pre{opacity:.45}
+#band path{stroke-width:1;vector-effect:non-scaling-stroke}
+.b-cord{fill:var(--cord);stroke:var(--cord)}.b-blue{fill:var(--blue);stroke:var(--blue)}.b-green{fill:var(--green);stroke:var(--green)}
+.summary{margin:10px 0 0;font-size:14px;color:var(--muted);max-width:90ch}
+.steps{display:flex;gap:2px;margin-top:14px;border-bottom:1px solid var(--rule);overflow-x:auto}
+.steps button{font:inherit;font-weight:650;font-size:15px;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.steps button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+.steps button[disabled]{cursor:not-allowed;opacity:.5}
+.steps .k{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;font-size:12px;margin-right:7px}
+#view{padding-top:22px;padding-bottom:64px}
+.lead{max-width:66ch;margin:0 0 14px;font-size:16px}
+.hint{color:var(--muted);font-size:13px;margin:6px 0}
+.note{background:var(--blue-soft);border-left:3px solid var(--blue);padding:8px 10px;font-size:14px;border-radius:0 6px 6px 0}
+.warn{background:var(--red-soft);color:var(--red);padding:8px 10px;border-radius:6px;font-size:14px}
+.intro{margin-bottom:18px}
+.next{margin-top:28px;padding-top:16px;border-top:1px solid var(--rule)}
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--raise)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:650;color:var(--muted);font-size:13px;background:var(--surface);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+.r{text-align:right}
+.raw td{white-space:pre;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.was{display:block;color:var(--muted);font-size:12px;white-space:pre;text-decoration-color:var(--red)}
+.cols{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.6fr);gap:22px;align-items:start;margin-top:14px}
+.cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;align-items:start}
+.screen{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
+.notify{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:920px){.screen{grid-template-columns:1fr}}
+@media (max-width:860px){.cols,.cols2,.notify{grid-template-columns:1fr}}
+.ctrl{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px}
+.ctrl h3:first-child{margin-top:0}
+.rng{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;margin:8px 0;font-size:14px}
+.rng input{grid-column:1/-1;width:100%;accent-color:var(--blue)}
+.rng output{font-weight:700}
+.chk{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px}
+.chk input{accent-color:var(--blue);width:18px;height:18px;margin:0}
+.cap{font-size:14px;margin:4px 0 8px}
+.cap.over{color:var(--amber-ink);font-weight:650}
+.req{font:inherit;font-size:13px;padding:5px 10px;border-radius:999px;border:1.5px solid var(--rule);background:var(--raise);color:var(--ink);cursor:pointer;margin:0 6px 6px 0}
+.req small{margin-left:6px;font-size:11px;opacity:.8}
+.req.must{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);font-weight:650}
+.req.nice{border-style:dashed;border-color:var(--blue);color:var(--blue)}
+.req.off{color:var(--muted);text-decoration:line-through}
+.chip{display:inline-flex;align-items:center;font-size:12.5px;padding:2px 9px;border-radius:999px;background:var(--surface);border:1px solid transparent;white-space:nowrap;margin:0 4px 4px 0}
+.s-short{background:var(--blue-soft);color:var(--blue)}
+.s-review{background:var(--amber-soft);color:var(--amber-ink)}
+.s-no{color:var(--muted);border-color:var(--rule)}
+.s-out{background:var(--red-soft);color:var(--red)}
+.s-ok{background:var(--green-soft);color:var(--green)}
+.ai{display:block;font-size:12px;color:var(--amber-ink)}
+.filters,.groups{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.f{font:inherit;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--rule);background:var(--raise);color:var(--ink);cursor:pointer}
+.f[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.who{font:inherit;font-weight:650;background:none;border:0;padding:0;color:var(--ink);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+.rank small{display:block;color:var(--muted);font-size:12px}
+.bar{height:6px;background:var(--surface);border-radius:3px;overflow:hidden;margin-top:4px;min-width:70px}
+.bar i{display:block;height:100%;background:var(--blue)}
+.big{font-stretch:62%;font-weight:800;line-height:1}
+.clock{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.clock .big{font-size:58px}
+.clock input{flex:1;min-width:220px;accent-color:var(--blue)}
+.counts{display:flex;flex-wrap:wrap;gap:22px;margin:12px 0 16px}
+.counts dt{font-size:13px;color:var(--muted)}
+.counts dd{margin:0;font-stretch:75%;font-weight:760;font-size:26px;line-height:1.1}
+.grid{display:grid;grid-template-columns:150px repeat(4,minmax(92px,1fr)) 26px repeat(3,minmax(92px,1fr));min-width:880px}
+.grid>div{border-bottom:1px solid var(--rule);padding:6px}
+.gh{font-size:13px;font-weight:650;color:var(--muted);background:var(--surface)}
+.lunch{background:repeating-linear-gradient(135deg,transparent 0 6px,var(--rule) 6px 7px)}
+.pan{font-weight:650;font-size:14px}
+.pan small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-bottom:4px}
+.cell{width:100%;min-height:52px;font:inherit;font-size:13px;text-align:left;border:1px solid var(--rule);border-radius:6px;background:var(--raise);color:var(--ink);padding:5px 7px;cursor:pointer;line-height:1.3;display:block}
+.cell .tag{display:block;font-size:11.5px;color:var(--muted)}
+.cell.done{background:var(--green-soft);border-color:transparent}
+.cell.live{border:2px solid var(--blue);background:var(--blue-soft)}
+.cell.noshow{background:var(--red-soft);border-color:transparent;color:var(--red)}
+.cell.empty,.cell.gone{border-style:dashed;background:transparent;color:var(--muted);cursor:default}
+.cell.gone{border-color:var(--red)}
+.cell.mv .tag{color:var(--amber-ink);font-weight:650}
+.cell.sel{outline:3px solid var(--ink);outline-offset:1px}
+.slotbar{margin:12px 0;padding:10px 12px;border-left:3px solid var(--blue);background:var(--surface);display:flex;flex-wrap:wrap;gap:10px;align-items:center;min-height:52px}
+.log{list-style:none;padding:0;margin:0}
+.log li{padding:8px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.log time{font-weight:700;margin-right:8px}
+.mail{background:var(--raise);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.mhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface);font-size:14px}
+.pager{display:inline-flex;gap:8px;align-items:center}
+.subj{padding:14px 14px 0;font-weight:700;font-size:16px}
+.body{padding:10px 14px 16px;white-space:pre-wrap;font:inherit;margin:0;line-height:1.6;max-width:72ch}
+.tpl h3{margin-top:0}
+.tpl input[type=text],.tpl textarea{display:block;width:100%;font:inherit;font-size:14px;padding:8px 10px;border-radius:6px;border:1px solid var(--rule);background:var(--raise);color:var(--ink);margin:2px 0 10px}
+.tpl textarea{min-height:230px;resize:vertical;line-height:1.5}
+textarea:focus-visible,.tpl input:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.tpl pre{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:12px;margin:0 0 10px}
+.tpl mark{background:var(--blue-soft);color:var(--blue);border-radius:3px;padding:0 2px}
+.airow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select{font:inherit;font-size:14px;min-height:40px;padding:6px 10px;border-radius:6px;border:1px solid var(--rule);background:var(--raise);color:var(--ink)}
+.brief-text{font-size:17px;line-height:1.55;max-width:68ch;border-left:3px solid var(--green);padding:2px 0 2px 16px}
+.brief-text p{margin:0 0 8px}
+.decisions{padding-left:22px;margin:0;max-width:72ch}
+.decisions li{margin:6px 0}
+.bars .row{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;font-size:14px;margin:7px 0}
+.track2{height:12px;background:var(--surface);border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.fill{height:100%;background:var(--blue)}
+.fill.low{background:var(--amber)}
+@media (max-width:560px){.bars .row{grid-template-columns:110px 1fr 76px}.clock .big{font-size:46px}h1{font-size:28px}}
+#scrim{position:fixed;inset:0;background:var(--scrim);z-index:20}
+#sheet{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--raise);border-left:1px solid var(--rule);z-index:21;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.sh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sh-score{display:flex;align-items:center;gap:10px;margin:12px 0}
+.sh-score .big{font-size:44px}
+.prow{display:grid;grid-template-columns:150px 1fr 34px;gap:10px;align-items:center;font-size:14px;margin:6px 0}
+.prow .bar{margin:0}
+.plain,.focus{padding-left:20px;margin:0}
+.plain li,.focus li{font-size:14px;margin:4px 0}
+.sh-acts{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap}
+#toastWrap{position:fixed;left:0;right:0;bottom:0;padding:0 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;pointer-events:none;z-index:30}
+#toast{background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;max-width:560px;opacity:0;transition:opacity .2s}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top wrap">
+<div><h1>Drive control room</h1><p class="sub" id="sub"></p></div>
+<div class="acts"><button class="btn primary" id="run" data-act="run">Run the drive</button><input type="file" id="file" class="vh" accept=".csv,text/csv"><label class="btn ghost" for="file">Load your CSV</label></div>
+</header>
+<section class="flow" aria-label="Drive pipeline"><div class="wrap"><div class="scroller"><div class="track"><div class="stages" id="stages"></div><svg id="band" viewBox="0 0 1200 80" preserveAspectRatio="none" aria-hidden="true"></svg></div></div><p class="summary" id="summary"></p></div></section>
+<nav class="steps wrap" id="steps" role="tablist" aria-label="Drive steps"></nav>
+<main class="wrap" id="view" role="tabpanel"></main>
+<div id="scrim" hidden></div>
+<aside id="sheet" hidden aria-label="Candidate details"></aside>
+<div id="toastWrap"><div id="toast" role="status" aria-live="polite"></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const fmt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const pct=(a,b)=>b?Math.round(a/b*100):0;
+const pl=(n,w,p)=>n+' '+(n===1?w:(p||w+'s'));
+const byScore=(a,b)=>b.score-a.score||a.id.localeCompare(b.id);
+const key=s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
+const prng=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const CAMPUS={'IIT Bombay':['IITB','iit bombay','IIT-Bombay','Indian Institute of Technology Bombay'],'IIT Delhi':['IITD','I.I.T. Delhi','iit delhi'],'IIT Madras':['IITM','IIT Chennai','iit madras'],'IIT Kharagpur':['IIT KGP','IITKGP','iit kharagpur'],'IIT Roorkee':['IITR','iit roorkee','I.I.T Roorkee'],'NIT Trichy':['NITT','NIT Tiruchirappalli','nit trichy'],'NIT Surathkal':['NITK','NIT Karnataka','NITK Surathkal'],'NIT Warangal':['NITW','nit warangal','N.I.T. Warangal'],'NIT Calicut':['NITC','NIT Kozhikode','nit calicut'],'BITS Pilani':['BITS-Pilani','Birla Institute of Technology and Science, Pilani','bits pilani'],'BITS Goa':['BITS Pilani Goa Campus','BITS-Goa','bits goa'],'BITS Hyderabad':['BITS Pilani Hyderabad','BITS Hyd','bits hyderabad']};
+const BRANCH={'CSE':['Computer Science','Computer Science and Engineering','C.S.E','Comp Sci','CS'],'IT':['Information Technology','I.T.'],'ECE':['Electronics and Communication','E&C','Electronics & Communication'],'EE':['Electrical','EEE','Electrical Engineering'],'Mathematics and Computing':['MnC','M&C','Maths & Computing'],'Mechanical':['Mech','ME','Mechanical Engineering']};
+const CK=new Map(),BK=new Map();
+for(const k in CAMPUS)for(const v of [k,...CAMPUS[k]])CK.set(key(v),k);
+for(const k in BRANCH)for(const v of [k,...BRANCH[k]])BK.set(key(v),k);
+const SK={'python':'Python','python3':'Python','java':'Java','go':'Go','golang':'Go','c++':'C++','cpp':'C++','javascript':'JavaScript','js':'JavaScript','typescript':'TypeScript','ts':'TypeScript','react':'React','reactjs':'React','react.js':'React','node.js':'Node.js','nodejs':'Node.js','node':'Node.js','sql':'SQL','mysql':'SQL','postgresql':'SQL','postgres':'SQL','dsa':'DSA','data structures':'DSA','data structures and algorithms':'DSA','data structures & algorithms':'DSA','algorithms':'DSA','rest apis':'REST APIs','rest api':'REST APIs','restful apis':'REST APIs','rest':'REST APIs','git':'Git','github':'Git','docker':'Docker','kubernetes':'Kubernetes','k8s':'Kubernetes','aws':'AWS','amazon web services':'AWS','gcp':'GCP','google cloud':'GCP','kafka':'Kafka','apache kafka':'Kafka','redis':'Redis','linux':'Linux','webrtc':'WebRTC','machine learning':'Machine Learning','ml':'Machine Learning','pandas':'Pandas','django':'Django','flask':'Flask','spring boot':'Spring Boot','springboot':'Spring Boot','system design':'System Design','hld':'System Design','microservices':'Microservices'};
+const VAR={};for(const k in SK)(VAR[SK[k]]=VAR[SK[k]]||[]).push(k);
+const GEN={backend:{lang:['Java','Go','C++'],extra:['Spring Boot','Node.js','Kafka','Redis','Microservices','Django','Linux'],proj:['URL shortener with Redis caching','Rate limiter for a public API','Distributed key-value store in Go','Order service with Kafka events','Chat server on WebSockets','Payment reconciliation service']},data:{lang:['Python'],extra:['Pandas','Machine Learning','Flask','Linux'],proj:['Churn prediction model','Call-quality anomaly detector','Resume parser with NLP','Movie recommender with collaborative filtering','Sales forecasting dashboard']},frontend:{lang:['JavaScript','TypeScript'],extra:['React','Node.js','Redis'],proj:['Expense tracker in React','Real-time collaborative whiteboard','Campus events app','Video call UI with WebRTC','Accessible component library']},platform:{lang:['Go','Python'],extra:['Docker','Kubernetes','AWS','GCP','Linux'],proj:['CI pipeline with automatic rollbacks','Kubernetes autoscaler experiment','Log pipeline on Kafka','Load balancer simulation','Cloud cost monitor']}};
+const INTERN=['SDE intern at a fintech startup','Backend intern at a SaaS company','Data intern at an analytics firm','Research intern at a university lab','Frontend intern at an edtech startup','Platform intern at a cloud services firm'];
+const FN=['Aarav','Aditi','Aditya','Akash','Ananya','Aniket','Anirudh','Anjali','Arvind','Ayesha','Bhavya','Chirag','Deepika','Divya','Faizan','Fathima','Gaurav','Gauri','Gokul','Harsh','Irfan','Ishaan','Jahnavi','Joel','Karthik','Kavya','Keerthana','Kunal','Lakshmi','Madhav','Manish','Meera','Mehul','Nandini','Neha','Nikhil','Nisha','Omkar','Pallavi','Pooja','Pranav','Priya','Rachit','Rahul','Riya','Rithika','Rohan','Sahil','Sameer','Sanjana','Shreya','Siddharth','Sneha','Swati','Tanvi','Tejas','Trisha','Uday','Varun','Vidya','Vivaan','Waseem','Yash','Zoya'];
+const LN=['Agarwal','Banerjee','Bhat','Bose','Chatterjee','Chauhan','Das','Desai','Fernandes','Ghosh','Gupta','Hegde','Iyer','Joshi','Kapoor','Khan','Krishnan','Kulkarni','Mehta','Menon','Mishra','Nair','Naidu','Patel','Pillai','Rao','Reddy','Saxena','Sharma','Shetty','Singh','Thomas','Varghese','Verma','Yadav'];
+const PANELS=[{id:'A',name:'Vikram',area:'backend'},{id:'B',name:'Deepa',area:'backend'},{id:'C',name:'Farhan',area:'platform'},{id:'D',name:'Neelima',area:'frontend'},{id:'E',name:'Rohit',area:'data'},{id:'F',name:'Sana',area:'generalist'}];
+const SLOTS=[600,645,690,735,825,870,915],LEN=45,CAP=PANELS.length*SLOTS.length;
+const TEAM={backend:'backend',platform:'platform',frontend:'frontend',data:'data',generalist:'engineering'};
+const AREA_SK={backend:['Java','Go','C++','Spring Boot','Node.js','Kafka','Redis','Microservices','Django','Flask','REST APIs'],data:['Python','Pandas','Machine Learning','SQL'],frontend:['JavaScript','TypeScript','React'],platform:['Docker','Kubernetes','AWS','GCP','Linux']};
+const AREA={backend:'Backend',data:'Data',frontend:'Frontend',platform:'Platform',generalist:'Generalist'};
+const COLS={name:['full name','name','candidate name','student name','candidate'],email:['email id','e mail id','email','e mail','mail id','email address'],phone:['mobile no','mobile','phone','phone number','contact','contact number','mobile number'],college:['college','campus','institute','university','college name','institution'],branch:['branch','department','stream','discipline'],cgpa:['cgpa percentage','cgpa','gpa','percentage','marks'],backlogs:['active backlogs','backlogs','arrears','active arrears'],skills:['technical skills','skills','tech stack','skill set','skillset'],test:['online test score','test score','test','score','assessment score','online test'],projects:['projects','project','project titles'],intern:['internship','internships','experience','work experience']};
+const COLNAME={name:'Name',email:'Email',phone:'Phone',college:'Campus',branch:'Branch',cgpa:'CGPA',backlogs:'Backlogs',skills:'Skills',test:'Test score',projects:'Projects',intern:'Internship'};
+const REQ0=[{label:'DSA',any:['DSA'],lv:'must'},{label:'Python/Java/Go/C++',any:['Python','Java','Go','C++'],lv:'must'},{label:'SQL',any:['SQL'],lv:'must'},{label:'REST APIs',any:['REST APIs'],lv:'must'},{label:'Git',any:['Git'],lv:'must'},{label:'System design',any:['System Design'],lv:'nice'},{label:'Docker or Kubernetes',any:['Docker','Kubernetes'],lv:'nice'},{label:'AWS or GCP',any:['AWS','GCP'],lv:'nice'},{label:'Kafka or Redis',any:['Kafka','Redis'],lv:'nice'},{label:'WebRTC',any:['WebRTC'],lv:'nice'}];
+const PROBE={'DSA':'Give a medium graph or array problem and watch how they reason through it.','Python/Java/Go/C++':'Ask them to walk through code they wrote in their main language.','SQL':'Have them write a join with a GROUP BY on a call-logs table.','REST APIs':'Ask them to design the endpoints for sending an SMS.','Git':'Ask how they would recover from a bad merge on main.','System design':'Ask them to sketch a rate limiter for a public API.','Docker or Kubernetes':'Ask how they would package and ship a small service.','AWS or GCP':'Ask where they would host a webhook receiver, and why.','Kafka or Redis':'Ask when they would reach for a queue and when for a cache.','WebRTC':'Ask what happens between dialling and the first audio packet.'};
+const TPL0={invite:{subject:'Interview confirmed: Thu 22 Oct, {time}',body:"Hi {first},\n\nCongratulations, you're on the shortlist for the Software Engineer role at Plivo.\n\nYour interview is on Thursday 22 October at {time}, for 45 minutes, with {panel} from our {team} team. They're keen to hear about your {project}.\n\nPlease reply by 6 PM today to confirm. If the time clashes with another company's slot, reply with two options and we'll move it.\n\nSee you soon,\nPlivo Talent Team"},update:{subject:'New time for your interview: {time}',body:"Hi {first},\n\nWe've had to make a change on our side. Your interview is now at {time} with {panel} from our {team} team. Everything else stays the same.\n\nPlease be at the waiting hall 10 minutes early. Thanks for bearing with us.\n\nPlivo Talent Team"},standby:{subject:"You're first in line for Friday's interviews",body:"Hi {first},\n\nYou made our shortlist for the Software Engineer role. Today's slots filled up before we reached you, so you're first in line for Friday 23 October.\n\nWe'll confirm your time by noon tomorrow. Your {skill} skills are a big part of why we want to talk.\n\nPlivo Talent Team"},missed:{subject:'We missed you at the {stage}',body:"Hi {first},\n\nWe noticed you couldn't make it to the {stage} for the Software Engineer role. If something went wrong, reply by tomorrow evening and we'll see what we can do.\n\nPlivo Talent Team"},regret:{subject:'Your application to Plivo',body:"Hi {first},\n\nThank you for taking our online test for the Software Engineer role. We won't be moving forward with your application this time. The shortlist was very close.\n\nYour {skill} skills came through clearly, and we'd be glad to see you apply again in our next drive.\n\nAll the best for placements,\nPlivo Talent Team"},ineligible:{subject:'Your application to Plivo',body:"Hi {first},\n\nThanks for your interest in the Software Engineer role. This drive uses eligibility criteria agreed with your placement cell, and your application doesn't meet them this time.\n\nWe'd like to stay in touch. Keep an eye on our careers page for off-campus roles.\n\nPlivo Talent Team"}};
+const GL={invite:'Interview invites',update:'Time changes',standby:'Standby',missed:'Missed',regret:'Not progressing',ineligible:'Not eligible',held:'Held for review',phone:'Call instead'};
+const GORDER=['invite','update','standby','missed','regret','ineligible','held','phone'];
+const EMAILG=['invite','update','standby','missed','regret','ineligible'];
+const TONE={warmer:['Warmer','warmer and more human'],shorter:['Shorter','shorter and more direct'],formal:['More formal','more formal and precise']};
+const FL=[['all','All'],['short','Shortlisted'],['review','Review'],['no','Not shortlisted'],['out','Not eligible']];
+const ST={short:['s-short','Shortlisted'],review:['s-review','Review'],no:['s-no','Not shortlisted'],out:['s-out','Not eligible']};
+const LV={must:['must','must-have'],nice:['nice','nice-to-have'],off:['off','ignored']};
+const BANDC=['cord','cord','blue','blue','green','green'];
+const TABS=[['clean','Clean'],['screen','Screen'],['schedule','Schedule'],['notify','Notify'],['report','Report']];
+const toCSV=rows=>rows.map(r=>r.map(v=>{v=String(v??'');return /[",\r\n]|^\s|\s$/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\r\n');
+function parseCSV(t){const out=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}else if(c==='"')q=true;else if(c===','){row.push(f);f=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);out.push(row);row=[];f=''}else f+=c}if(f!==''||row.length){row.push(f);out.push(row)}return out.filter(r=>r.some(v=>v.trim()))}
+function genCSV(){
+const R=prng(20261022),P=a=>a[Math.floor(R()*a.length)],G=()=>Math.sqrt(-2*Math.log(R()||1e-9))*Math.cos(2*Math.PI*R());
+const shuf=a=>{for(let k=a.length-1;k>0;k--){const j=Math.floor(R()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+const messy=s=>{const v=VAR[s];if(!v||R()<0.5)return s;const x=P(v);return R()<0.15?x.toUpperCase():x};
+const H=['Full Name','E-mail ID','Mobile No','College','Branch','CGPA/Percentage','Active Backlogs','Technical Skills','Online Test Score','Projects','Internship'];
+const rows=[],meta=[],used=new Set(),camps=Object.keys(CAMPUS),brs=['CSE','CSE','CSE','CSE','CSE','IT','ECE','ECE','EE','Mathematics and Computing','Mechanical'],areas=['backend','backend','backend','data','data','frontend','frontend','platform'];
+const nameV=(f,l)=>{const n=f+' '+l,x=R();return x<0.68?n:x<0.84?n.toUpperCase():x<0.94?n.toLowerCase():'  '+f+'   '+l+' '};
+const phoneV=p=>{const x=R();return x<0.4?p:x<0.6?'+91 '+p.slice(0,5)+' '+p.slice(5):x<0.75?'+91-'+p:x<0.88?'0'+p:p.slice(0,5)+'-'+p.slice(5)};
+for(let i=0;i<221;i++){
+let f,l;do{f=P(FN);l=P(LN)}while(used.has(f+l));used.add(f+l);
+const z=G(),area=P(areas),A=GEN[area],cg=clamp(7.75+0.62*z+0.45*G(),5.6,9.92),test=R()<0.045?null:Math.round(clamp(57+14*z+10*G(),8,100)),sk=new Set();
+if(R()<0.78+0.12*z)sk.add('DSA');
+sk.add(P(A.lang));if(R()<0.25)sk.add(P(['Python','Java','C++','JavaScript']));
+if(R()<(area==='data'?0.88:0.66))sk.add('SQL');
+if(R()<(area==='backend'||area==='frontend'?0.84:0.6))sk.add('REST APIs');
+if(R()<0.82)sk.add('Git');
+for(let k=1+Math.floor(R()*3);k>0;k--)sk.add(P(A.extra));
+if(R()<0.14+(z>1?0.2:0))sk.add('System Design');
+if(R()<0.2)sk.add('Docker');if(R()<0.15)sk.add('AWS');if(R()<0.05)sk.add('WebRTC');
+const pool=[...A.proj],pj=[];for(let k=clamp(Math.round(1.5+0.8*z+0.7*G()),0,4);k>0&&pool.length;k--)pj.push(pool.splice(Math.floor(R()*pool.length),1)[0]);
+const intern=R()<clamp(0.33+0.15*z,0.08,0.8)?P(INTERN):null,bl=R()<(cg<7.2?0.3:0.09)?1+Math.floor(R()*2):0,camp=P(camps),br=P(brs);
+const email=R()<0.025?'':(f+'.'+l+P(['24','25','03','11','07','99',''])).toLowerCase()+'@student.example.edu';
+const ph=P(['9','8','7','6'])+String(Math.floor(R()*1e9)).padStart(9,'0'),cx=R(),sep=P([', ',', ','; ',' | ',',']);
+rows.push([nameV(f,l),email&&R()<0.12?email.toUpperCase():email,phoneV(ph),R()<0.55?camp:P(CAMPUS[camp]),R()<0.5?br:P(BRANCH[br]),R()<0.015?'':cx<0.6?cg.toFixed(2):cx<0.75?cg.toFixed(1)+'/10':cx<0.9?(cg*10).toFixed(1)+'%':cg.toFixed(2)+' CGPA',bl?(R()<0.5?String(bl):bl+' active'):P(['0','0','0','Nil','None','-','NIL']),shuf([...sk]).map(messy).join(sep),test==null?P(['AB','Absent','','-']):R()<0.85?String(test):test+'/100',pj.join(P(['; ',' | ',';'])),intern||P(['-','','None','NA'])]);
+meta.push({f,l,email,ph});
+}
+for(let i=0;i<19;i++){const j=Math.floor(R()*221),m=meta[j],d=[...rows[j]],x=R();d[0]=nameV(m.f,m.l);d[1]=!m.email?'':x<0.4?' '+m.email.toUpperCase()+' ':x<0.6?'':m.email;d[2]=phoneV(m.ph);rows.push(d)}
+return toCSV([H,...shuf(rows)]);
+}
+const SAMPLE=genCSV();
+function mapCols(h){const n=h.map(x=>String(x).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()),m={},used=new Set();for(const pass of [0,1])for(const k in COLS){if(m[k]!=null)continue;for(const s of COLS[k]){const i=n.findIndex((x,j)=>!used.has(j)&&(pass?x.includes(s):x===s));if(i>-1){m[k]=i;used.add(i);break}}}for(const k in COLS)if(m[k]==null)m[k]=null;return m}
+function areaOf(sk){let a='backend',b=0;for(const k in AREA_SK){const v=sk.filter(s=>AREA_SK[k].includes(s)).length;if(v>b){b=v;a=k}}return a}
+function clean(tab,m){
+const st={dup:0,cg:0,campus:0,branch:0,name:0,phone:0,email:0,skills:0,absent:0,noemail:0,unknown:0,nocg:0},out=[],byE=new Map(),byP=new Map();
+for(const r of tab.slice(1)){
+const raw={};for(const k in COLS)raw[k]=m[k]==null?'':String(r[m[k]]??'');
+const c={raw,chg:0},bump=k=>{st[k]++;c.chg++};
+c.name=raw.name.trim().replace(/\s+/g,' ').toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu,(x,a,b)=>a+b.toUpperCase())||'Unnamed applicant';
+if(c.name!==raw.name)bump('name');
+const em=raw.email.toLowerCase().replace(/\s+/g,'');c.email=/^[^@]+@[^@]+\.[^@]+$/.test(em)?em:null;if(c.email&&c.email!==raw.email)bump('email');
+const dg=raw.phone.replace(/\D/g,'').replace(/^(?:91|0)(?=\d{10}$)/,'');c.phone=dg.length===10?'+91 '+dg.slice(0,5)+' '+dg.slice(5):null;if(c.phone&&c.phone!==raw.phone)bump('phone');
+const cc=CK.get(key(raw.college));if(cc){c.campus=cc;if(cc!==raw.college)bump('campus')}else if(raw.college.trim()){c.campus=raw.college.trim().replace(/\s+/g,' ');st.unknown++}else c.campus='Not given';
+const bb=BK.get(key(raw.branch));if(bb){c.branch=bb;if(bb!==raw.branch)bump('branch')}else c.branch=raw.branch.trim()||'Not given';
+const cm=raw.cgpa.match(/\d+(?:\.\d+)?/);let v=cm?+cm[0]:NaN;if(v>10&&v<=100)v/=10;c.cgpa=v>=0&&v<=10?Math.round(v*100)/100:null;
+c.cgplain=/^\d+(\.\d+)?$/.test(raw.cgpa.trim())&&+raw.cgpa<=10;if(c.cgpa!=null&&!c.cgplain)bump('cg');
+const bm=raw.backlogs.match(/\d+/);c.backlogs=bm?+bm[0]:0;if(raw.backlogs.trim()&&!/^\d+$/.test(raw.backlogs.trim()))c.chg++;
+const toks=raw.skills.split(/[,;|]+/).map(x=>x.trim()).filter(Boolean),sk=[];let ch=false;
+for(const t of toks){const s=SK[t.toLowerCase().replace(/\s+/g,' ')]||t;if(s!==t)ch=true;if(sk.includes(s))ch=true;else sk.push(s)}
+c.skills=sk;if(ch)bump('skills');
+const tr=raw.test.trim(),tv=parseFloat(tr);c.test=m.test==null||!tr||/^(ab|absent|na|n\/a|-)$/i.test(tr)||isNaN(tv)?null:clamp(Math.round(tv),0,100);if(c.test!=null&&String(c.test)!==tr)c.chg++;
+const pr=raw.projects.trim();c.projects=/^\d+$/.test(pr)?Array.from({length:Math.min(+pr,6)},(_,i)=>'Project '+(i+1)):pr.split(/[;|]+/).map(x=>x.trim()).filter(Boolean);
+const it=raw.intern.trim();c.intern=it&&!/^(-|none|na|n\/a|nil|no)$/i.test(it)?it:null;
+const prev=(c.email&&byE.get(c.email))||(c.phone&&byP.get(c.phone));
+if(prev){for(const k of ['email','phone','cgpa','test','intern'])if(prev[k]==null&&c[k]!=null)prev[k]=c[k];for(const s of c.skills)if(!prev.skills.includes(s))prev.skills.push(s);if(c.projects.length>prev.projects.length)prev.projects=c.projects;st.dup++;if(prev.email)byE.set(prev.email,prev);if(prev.phone)byP.set(prev.phone,prev);continue}
+out.push(c);if(c.email)byE.set(c.email,c);if(c.phone)byP.set(c.phone,c);
+}
+out.forEach((c,i)=>{c.id='C'+String(i+1).padStart(4,'0');const p=c.name.split(' ');c.first=c.name==='Unnamed applicant'?'there':p[0];c.short=p.length>1?p[0]+' '+p[p.length-1][0]+'.':p[0];c.skillSet=new Set(c.skills);c.area=areaOf(c.skills)});
+st.noemail=out.filter(c=>!c.email).length;st.absent=m.test==null?0:out.filter(c=>c.test==null).length;st.nocg=m.cgpa==null?0:out.filter(c=>c.cgpa==null).length;
+return {rows:out,st,has:{test:m.test!=null,cgpa:m.cgpa!=null,proj:m.projects!=null||m.intern!=null}};
+}
+const fmt12=m=>{const h=Math.floor(m/60);return (h%12||12)+':'+String(m%60).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+const S={tab:'clean',ran:false,filter:'all',all:false,req:REQ0.map(r=>({...r})),w:{test:40,skills:30,cg:15,proj:15},cut:60,minCg:7,bl:false,blind:true,band:1.5,ov:{},ai:{},tpl:JSON.parse(JSON.stringify(TPL0)),mg:'invite',mi:0,sel:null,open:null,sample:null,dl:null,busy:'',briefAI:null,showPlain:false,g:[],standby:[],out:new Set(),outAt:{},noshow:[],log:[],clock:570};
+let BY=new Map();
+const rankP=(i,c)=>PANELS[i].area===c.area?0:PANELS[i].area==='generalist'?1:2;
+function score(c){const W=S.w,D=S.D,musts=S.req.filter(r=>r.lv==='must'),nices=S.req.filter(r=>r.lv==='nice'),hit=r=>r.any.some(s=>c.skillSet.has(s));
+c.mustHit=musts.filter(hit).map(r=>r.label);c.mustMiss=musts.filter(r=>!hit(r)).map(r=>r.label);c.niceHit=nices.filter(hit).map(r=>r.label);
+const den=musts.length+nices.length*0.5,n={test:D.has.test?(c.test??0)/100:null,skills:den?(c.mustHit.length+c.niceHit.length*0.5)/den:null,cg:D.has.cgpa?clamp(((c.cgpa??6)-6)/4,0,1):null,proj:D.has.proj?Math.min(1,c.projects.length*0.3+(c.intern?0.4:0)):null};
+let tw=0,s=0;for(const k in n)if(n[k]!=null&&W[k]>0){tw+=W[k];s+=W[k]*n[k]}
+c.parts={};c.max={};for(const k in n){c.parts[k]=n[k]==null||!tw||!W[k]?null:W[k]*n[k]/tw*100;c.max[k]=c.parts[k]==null?0:W[k]/tw*100}
+c.score=tw?Math.round(s/tw*1000)/10:0}
+function screen(){const D=S.D;for(const c of D.rows){score(c);const why=[];if(D.has.test&&c.test==null)why.push('absent');else{if(D.has.cgpa&&c.cgpa!=null&&c.cgpa<S.minCg)why.push('CGPA below '+S.minCg.toFixed(1));if(!S.bl&&c.backlogs>0)why.push(pl(c.backlogs,'active backlog'))}
+c.why=why;c.flag='';let st;
+if(why.length)st='out';else if(Math.abs(c.score-S.cut)<S.band){st='review';c.flag='Within '+S.band+' points of the cutoff'}else if(c.score>=S.cut&&c.mustMiss.length>=2){st='review';c.flag='Missing '+c.mustMiss.length+' must-haves'}else if(c.score>=S.cut&&D.has.cgpa&&c.cgpa==null){st='review';c.flag='No CGPA given'}else st=c.score>=S.cut?'short':'no';
+c.auto=st;c.st=st!=='out'&&S.ov[c.id]?S.ov[c.id]:st}
+S.rank=[...D.rows].sort(byScore);S.rank.forEach((c,i)=>c.rk=i+1)}
+function plan(){const g=PANELS.map(()=>SLOTS.map(()=>null)),sb=[],free=p=>g[p].indexOf(null);
+for(const c of S.rank.filter(c=>c.st==='short')){const o=PANELS.map((_,i)=>i).filter(i=>free(i)>-1).sort((a,b)=>rankP(a,c)-rankP(b,c)||free(a)-free(b)||a-b);if(!o.length){sb.push(c.id);continue}g[o[0]][free(o[0])]={id:c.id,st:'sched',mv:false}}
+S.g0=JSON.stringify(g);S.sb0=sb;resetDay()}
+function resetDay(){S.g=JSON.parse(S.g0);S.standby=[...S.sb0];S.out=new Set();S.outAt={};S.noshow=[];S.log=[];S.sel=null;S.clock=570}
+const at=()=>{const m=new Map();S.g.forEach((r,p)=>r.forEach((x,s)=>{if(x&&x.id)m.set(x.id,{p,s,x})}));return m};
+const booked=()=>S.g.flat().filter(x=>x&&x.id&&x.st!=='noshow').length;
+function cst(p,s){const x=S.g[p][s],t=SLOTS[s];if(!x)return'empty';if(x.gone)return'gone';if(x.st==='noshow')return'noshow';if(S.clock>=t+LEN)return'done';if(S.clock>=t)return'live';return'sched'}
+const logit=m=>S.log.unshift({t:S.clock,m});
+function place(c,minT){const f=[];S.g.forEach((r,p)=>{if(!S.out.has(p))r.forEach((x,s)=>{if(!x&&SLOTS[s]>=minT)f.push([p,s])})});f.sort((a,b)=>(rankP(a[0],c)>1)-(rankP(b[0],c)>1)||SLOTS[a[1]]-SLOTS[b[1]]||a[0]-b[0]);if(!f.length)return null;S.g[f[0][0]][f[0][1]]={id:c.id,st:'sched',mv:true};return f[0]}
+function dropPanel(p){const T=S.clock,moved=[];S.g[p].forEach((x,s)=>{if(SLOTS[s]>T){if(x&&x.id&&x.st!=='noshow')moved.push(BY.get(x.id));S.g[p][s]={gone:true}}});S.out.add(p);S.outAt[p]=T;moved.sort(byScore);
+const placed=[],back=[];for(const c of moved){const r=place(c,T+30);r?placed.push(c.short+' to '+fmt12(SLOTS[r[1]])+' with '+PANELS[r[0]].name):back.push(c.id)}S.standby.unshift(...back);
+logit(PANELS[p].name+"'s panel dropped out."+(moved.length?(placed.length?' Moved '+placed.join(', ')+'.':'')+(back.length?' No free slots left today, so '+pl(back.length,'candidate')+(back.length===1?' goes':' go')+' to the front of standby.':''):' No interviews were left to move.'));S.sel=null}
+function noShow(p,s){const x=S.g[p][s],c=BY.get(x.id),t=SLOTS[s];S.noshow.push(c.id);let m=c.short+" didn't show at "+fmt12(t)+' with '+PANELS[p].name+'.';
+if(S.clock<t+15&&S.standby.length){const d=BY.get(S.standby.shift());S.g[p][s]={id:d.id,st:'sched',mv:true,sb:true};m+=' '+d.short+' was waiting on standby and took the slot.'}else{x.st='noshow';m+=S.standby.length?' Too late in the slot to bring in standby.':' Standby is empty, so the slot stays open.'}logit(m)}
+function proj(c){const p=c.projects.find(x=>!/^Project \d+$/.test(x));if(p)return /^[A-Z]{2}/.test(p)?p:p[0].toLowerCase()+p.slice(1);return c.intern?'internship':'recent projects'}
+function topSkill(c){const hit=r=>r.any.find(x=>c.skillSet.has(x)),o=[...S.req.filter(r=>r.lv==='nice'),...S.req.filter(r=>r.lv==='must'&&r.label!=='Git').sort((a,b)=>(a.label==='DSA')-(b.label==='DSA'))];for(const r of o){const s=hit(r);if(s)return s}return c.skills[0]||'technical'}
+const vars=it=>({first:it.c.first,time:it.a?fmt12(SLOTS[it.a.s]):'',panel:it.a?PANELS[it.a.p].name:'',team:it.a?TEAM[PANELS[it.a.p].area]:'',project:proj(it.c),skill:topSkill(it.c),stage:it.stage});
+const merge=(t,v)=>t.replace(/\{(\w+)\}/g,(m,k)=>k in v?v[k]:m);
+function groups(){const G={};GORDER.forEach(k=>G[k]=[]);const m=at(),ns=new Set(S.noshow),sb=new Set(S.standby);
+for(const c of S.rank){const a=m.get(c.id);let k,stage='interview';
+if(ns.has(c.id))k='missed';else if(a)k=a.x.mv?'update':'invite';else if(sb.has(c.id))k='standby';else if(c.st==='review')k='held';else if(c.st==='out'){if(c.why[0]==='absent'){k='missed';stage='online test'}else k='ineligible'}else if(c.st==='no')k='regret';else k='standby';
+const it={c,a,k,stage};(EMAILG.includes(k)&&!c.email?G.phone:G[k]).push(it)}return G}
+const emailCount=G=>EMAILG.reduce((n,k)=>n+G[k].length,0);
+function counts(){const n=S.tab0.length-1;if(!S.ran)return [n,null,null,null,null,null];const D=S.D,R=D.rows;return [n,R.length,D.has.test?R.filter(c=>c.test!=null).length:R.length,R.filter(c=>c.st!=='out').length,R.filter(c=>c.st==='short').length,booked()]}
+function facts(){const R=S.D.rows,G=groups(),n=k=>R.filter(c=>c.st===k).length,camp={};for(const c of R){const o=camp[c.campus]=camp[c.campus]||{a:0,s:0};o.a++;if(c.st==='short')o.s++}
+const cs=Object.entries(camp).filter(([k,o])=>o.a>=5&&k!=='Not given').map(([k,o])=>({k,a:o.a,s:o.s,r:o.s/o.a})).sort((a,b)=>b.r-a.r||b.a-a.a),[ap,un,tk,el,sh,bk]=counts();
+return {applied:ap,unique:un,dup:S.D.st.dup,took:tk,eligible:el,shortlisted:sh,booked:bk,review:n('review'),standby:S.standby.length,noshow:S.noshow.length,panelsOut:[...S.out].map(p=>PANELS[p].name),emails:emailCount(G),toCall:G.phone.length,campuses:Object.keys(camp).filter(k=>k!=='Not given').length,cs,overall:R.length?n('short')/R.length:0}}
+function decisions(f){const d=[];
+if(f.standby)d.push('Approve a Friday half-day for the '+pl(f.standby,'shortlisted candidate')+' on standby. At 7 interviews a panel, that takes '+pl(Math.ceil(f.standby/7),'panel')+'.');
+if(f.review)d.push('Decide on '+pl(f.review,'borderline candidate')+' in Screen. They hear nothing until someone does.');
+if(f.panelsOut.length)d.push('Find cover for '+f.panelsOut.join(' and ')+(f.panelsOut.length>1?"'s panels":"'s panel")+', or keep their candidates on standby.');
+if(f.toCall)d.push('Call '+pl(f.toCall,'candidate')+' with no valid email before 6 PM.');
+if(f.noshow)d.push('Send the missed-interview email to '+pl(f.noshow,'no-show')+' so they can explain.');
+if(f.cs.length>1){const a=f.cs[0],b=f.cs[f.cs.length-1];d.push(a.k+' had the strongest shortlist rate ('+pct(a.s,a.a)+'%), '+b.k+' the weakest ('+pct(b.s,b.a)+'%). Worth weighing when picking campuses next season.')}
+return d}
+const label=c=>S.blind?'Candidate '+c.id.slice(1):c.name;
+const sublabel=c=>S.blind?AREA[c.area]+' profile':c.campus+', '+c.branch;
+const LEAN={shortlist:'Claude leans shortlist',hold:'Claude says look closer',pass:'Claude leans pass'};
+const chip=c=>`<span class="chip ${ST[c.st][0]}">${ST[c.st][1]}${S.ov[c.id]&&c.auto!=='out'?' by you':''}</span>`;
+const nextBtn=(t,l)=>`<div class="next"><button class="btn primary" data-act="tab" data-v="${t}">${l}</button></div>`;
+function band(v){const m=v[0]||1,h=v.map(x=>Math.max(1.5,36*(x??m)/m));let o='';for(let i=0;i<6;i++){const x0=i*200,a=i?h[i-1]:h[0],b=h[i],L=i?x0-30:0;o+=`<path class="b-${BANDC[i]}" d="M${L},${40-a} C${x0},${40-a} ${x0},${40-b} ${x0+30},${40-b} L${x0+170},${40-b} L${x0+170},${40+b} L${x0+30},${40+b} C${x0},${40+b} ${x0},${40+a} ${L},${40+a}Z"/>`}$('#band').innerHTML=o;$('#band').classList.toggle('pre',!S.ran)}
+function renderHero(){const v=counts(),f=S.ran?facts():null,st=S.ran?S.D.st:null,L=['Applied','Unique','Took the test','Eligible','Shortlisted','Booked'],d=S.ran?['rows in the file','−'+st.dup+' duplicates',S.D.has.test?'−'+st.absent+' absent':'no test column','−'+(v[2]-v[3])+' below criteria','score '+S.cut+'+ or approved','of '+CAP+' slots']:['rows in the file','','','','',''];
+$('#stages').innerHTML=L.map((l,i)=>`<div class="stage"><div class="n">${v[i]??'–'}</div><div class="l">${l}</div><div class="d">${d[i]}</div></div>`).join('');band(v);
+$('#sub').textContent=S.src==='sample'?'Software Engineer campus drive, Thursday 22 October. Sample data: 240 synthetic applications from IITs, NITs and BITS.':'Your file: '+S.src+'. Interviews planned on six panels in 45-minute slots.';
+$('#summary').textContent=S.ran?`${f.applied} rows in, ${f.unique} unique candidates, ${f.booked} interviews booked and ${f.emails} emails drafted in ${S.ms} ms. By hand that's about ${Math.round((f.applied+f.unique*3+f.booked*3+f.emails*2)/60)} hours, at 1 minute per row cleaned, 3 per resume, 3 per booking and 2 per email.`:'Press Run the drive to clean, screen, schedule and draft every email in one pass.';
+$('#run').textContent=S.ran?'Run again':'Run the drive'}
+function renderTabs(){$('#steps').innerHTML=TABS.map((t,i)=>`<button role="tab" aria-selected="${S.tab===t[0]}" data-act="tab" data-v="${t[0]}" data-key="tab${t[0]}"${!S.ran&&i?' disabled':''}><span class="k">${i+1}</span>${t[1]}</button>`).join('')}
+const mapHTML=()=>`<h3>Columns found</h3><div class="tablewrap"><table><thead><tr><th>Field</th><th>Your column</th></tr></thead><tbody>${Object.keys(COLS).map(k=>`<tr><td>${COLNAME[k]}</td><td>${S.map[k]==null?'<span class="hint">Not found</span>':esc(S.tab0[0][S.map[k]])}</td></tr>`).join('')}</tbody></table></div>`;
+function vClean(){if(!S.ran){const h=S.tab0[0],r=S.tab0.slice(1,9);return `<p class="lead">Here's the file as it arrived: ${pl(S.tab0.length-1,'row')}, mixed formats, duplicates and blanks.</p><div class="cols"><div>${mapHTML()}</div><div><h3>First rows, untouched</h3><div class="tablewrap"><table class="raw"><thead><tr>${h.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${r.map(x=>`<tr>${h.map((_,i)=>`<td>${esc(x[i]??'')}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div></div><div class="next"><button class="btn primary" data-act="run">Run the drive</button></div>`}
+const st=S.D.st,fixed=S.D.rows.reduce((n,c)=>n+c.chg,0),items=[[st.dup,'duplicates merged'],[st.cg,'CGPA formats fixed'],[st.campus,'campus names standardised'],[st.skills,'skill lists normalised'],[st.phone,'phone numbers fixed'],[st.name,'names tidied'],[st.noemail,'with no valid email'],[st.absent,'absent from the test']].filter(x=>x[0]);
+const cell=(v,raw)=>`${esc(v)}${String(raw).trim()!==String(v)&&String(raw).trim()?`<span class="was"><s>${esc(raw)}</s></span>`:''}`,top=[...S.D.rows].sort((a,b)=>b.chg-a.chg||a.id.localeCompare(b.id)).slice(0,8);
+return `<p class="lead">${S.tab0.length-1} rows in, ${S.D.rows.length} unique candidates out. ${fixed} fields fixed without anyone opening the sheet.</p><dl class="counts">${items.map(x=>`<div><dd>${x[0]}</dd><dt>${x[1]}</dt></div>`).join('')}</dl>${st.unknown?`<p class="note">${pl(st.unknown,'campus name')} didn't match a known campus and ${st.unknown===1?'was':'were'} kept as written.</p>`:''}
+<div class="cols"><div>${mapHTML()}</div><div><h3>Before and after, the messiest rows</h3><div class="tablewrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Campus</th><th>CGPA</th><th>Skills</th><th>Test</th></tr></thead><tbody>${top.map(c=>`<tr><td>${cell(c.name,c.raw.name)}</td><td>${cell(c.email||'Missing',c.raw.email)}</td><td>${cell(c.phone||'Missing',c.raw.phone)}</td><td>${cell(c.campus,c.raw.college)}</td><td>${c.cgplain?esc(c.raw.cgpa):cell(c.cgpa==null?'Missing':c.cgpa.toFixed(2),c.raw.cgpa)}</td><td>${cell(c.skills.join(', '),c.raw.skills)}</td><td>${cell(c.test??'Absent',c.raw.test)}</td></tr>`).join('')}</tbody></table></div></div></div>${nextBtn('screen','Screen the candidates')}`}
+const rng=(id,l,v,a,b,s,dis)=>`<label class="rng"><span>${l}</span><output id="o-${id}">${id==='minCg'?(+v).toFixed(1):v}</output><input type="range" data-in="${id}" min="${a}" max="${b}" step="${s}" value="${v}"${dis?' disabled':''}></label>`;
+function ctrlHTML(){const h=S.D.has;return `<h3>What the role needs</h3><p class="hint">Tap a skill to switch it between must-have, nice-to-have and ignored.</p><div>${S.req.map((r,i)=>`<button class="req ${LV[r.lv][0]}" data-act="req" data-v="${i}" data-key="req${i}" aria-label="${esc(r.label)}, ${LV[r.lv][1]}">${esc(r.label)}<small>${LV[r.lv][1]}</small></button>`).join('')}</div>
+<h3>How much each part counts</h3><p class="hint">Weights are relative. The score is always out of 100.</p>${rng('w.test','Online test',S.w.test,0,60,5,!h.test)}${rng('w.skills','Skills match',S.w.skills,0,60,5)}${rng('w.cg','CGPA',S.w.cg,0,60,5,!h.cgpa)}${rng('w.proj','Projects and internship',S.w.proj,0,60,5,!h.proj)}
+<h3>Cutoffs</h3>${rng('cut','Shortlist score',S.cut,40,90,1)}${rng('minCg','Minimum CGPA',S.minCg,6,8.5,0.1,!h.cgpa)}<label class="chk"><input type="checkbox" data-in="bl"${S.bl?' checked':''}>Allow active backlogs</label><label class="chk"><input type="checkbox" data-in="blind"${S.blind?' checked':''}>Blind review</label><p class="hint">Name and campus never count toward the score. Blind review hides them on this screen too.</p>`}
+function resHTML(){const R=S.D.rows,n=k=>R.filter(c=>c.st===k).length,sh=n('short'),rv=n('review'),f=S.filter==='all'?S.rank:S.rank.filter(c=>c.st===S.filter),show=S.all?f:f.slice(0,40);
+return `<p class="cap${sh>CAP?' over':''}">${sh} shortlisted for ${CAP} interview slots on Thursday. ${sh>CAP?pl(sh-CAP,'candidate')+' will go to Friday standby.':pl(CAP-sh,'slot')+' still open.'}</p>
+${rv?`<div class="note">${pl(rv,'candidate')} ${rv===1?'sits':'sit'} close to the line or ${rv===1?'has':'have'} gaps. Open one to decide${S.sample?', or ask Claude for a second read first':''}.${S.sample?`<div class="row-acts" style="margin-top:8px"><button class="btn" data-act="deep"${S.busy==='deep'?' disabled':''}>${S.busy==='deep'?'Claude is reading '+pl(Math.min(rv,12),'profile')+'…':'Ask Claude about the review queue'}</button></div>`:''}</div>`:''}
+<div class="filters" style="margin-top:14px">${FL.map(([k,l])=>`<button class="f" aria-pressed="${S.filter===k}" data-act="filter" data-v="${k}" data-key="f${k}">${l} ${k==='all'?R.length:n(k)}</button>`).join('')}</div>
+<div class="tablewrap"><table><thead><tr><th class="r">#</th><th>Candidate</th><th class="r">Score</th><th class="r">Test</th><th>Must-haves</th><th>Status</th></tr></thead><tbody>${show.map(c=>`<tr><td class="r">${c.rk}</td><td class="rank"><button class="who" data-act="open" data-v="${c.id}">${esc(label(c))}</button><small>${esc(sublabel(c))}</small></td><td class="r"><b>${c.score.toFixed(1)}</b><div class="bar"><i style="width:${c.score}%"></i></div></td><td class="r">${S.D.has.test?c.test??'Absent':'–'}</td><td>${c.mustHit.length} of ${c.mustHit.length+c.mustMiss.length}</td><td>${chip(c)}${c.st==='out'?`<span class="ai" style="color:var(--muted)">${esc(c.why[0]==='absent'?'Absent from the test':c.why.join(', '))}</span>`:''}${S.ai[c.id]?`<span class="ai">${LEAN[S.ai[c.id].lean]}</span>`:''}</td></tr>`).join('')||'<tr><td colspan="6">Nobody in this group.</td></tr>'}</tbody></table></div>${f.length>show.length?`<div class="row-acts"><button class="btn" data-act="all">Show all ${f.length}</button></div>`:''}`}
+const vScreen=()=>`<div class="screen"><div class="ctrl" id="ctrl">${ctrlHTML()}</div><div id="res">${resHTML()}</div></div>${nextBtn('schedule','Book the interviews')}`;
+function focusList(c){const o=[],ai=S.ai[c.id];if(ai&&ai.ask)o.push(ai.ask);for(const m of c.mustMiss.slice(0,2))o.push(PROBE[m]||'Check their '+m+'.');const p=c.projects.find(x=>!/^Project \d+$/.test(x));if(p)o.push('Ask them to walk through '+(/^[A-Z]{2}/.test(p)?p:p[0].toLowerCase()+p.slice(1))+': what broke and how they fixed it.');else if(c.intern)o.push('Ask what they shipped during their internship and who used it.');if(o.length<3&&c.niceHit[0])o.push(PROBE[c.niceHit[0]]);return o.slice(0,3)}
+function sheetHTML(c){const P=[['test','Online test'],['skills','Skills match'],['cg','CGPA'],['proj','Projects and internship']].filter(([k])=>c.parts[k]!=null),ai=S.ai[c.id];
+return `<div class="sh-top"><div><h2>${esc(label(c))}</h2><p class="hint" style="margin:0">${esc(sublabel(c))}${S.blind?'':'<br>'+esc(c.email||'No valid email')+(c.phone?', '+esc(c.phone):'')}</p></div><button class="btn ghost" data-act="close">Close</button></div>
+<div class="sh-score"><span class="big">${c.score.toFixed(1)}</span><span>${chip(c)}<br><span class="hint">Cutoff ${S.cut}, ranked ${c.rk} of ${S.D.rows.length}</span></span></div>
+${c.st==='out'?`<p class="warn">Not eligible: ${esc(c.why[0]==='absent'?'absent from the online test':c.why.join(', '))}.</p>`:c.flag?`<p class="note">${esc(c.flag)}.</p>`:''}
+<h3>Where the score comes from</h3>${P.map(([k,l])=>`<div class="prow"><span>${l}</span><div class="bar"><i style="width:${c.max[k]?c.parts[k]/c.max[k]*100:0}%"></i></div><b class="r">${c.parts[k].toFixed(0)}</b></div>`).join('')}<p class="hint">Test ${c.test??'absent'}${c.cgpa!=null?', CGPA '+c.cgpa.toFixed(2):''}, ${pl(c.backlogs,'active backlog')}.</p>
+<h3>Skills</h3><div>${c.mustHit.concat(c.niceHit).map(s=>`<span class="chip s-ok">${esc(s)}</span>`).join('')}${c.mustMiss.map(s=>`<span class="chip s-out">No ${esc(s)}</span>`).join('')}</div><p class="hint">As written: ${esc(c.skills.join(', ')||'none listed')}</p>
+${c.projects.length||c.intern?`<h3>Projects and internship</h3><ul class="plain">${c.projects.map(p=>`<li>${esc(p)}</li>`).join('')}${c.intern?`<li>${esc(c.intern)}</li>`:''}</ul>`:''}
+${ai?`<h3>Claude's second read</h3><p style="margin:0;font-size:14px"><b>${LEAN[ai.lean]}.</b> ${esc(ai.why)}</p>`:''}
+${c.st!=='out'?`<h3>What the panel should probe</h3><ol class="focus">${focusList(c).map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="sh-acts">${c.st!=='short'?'<button class="btn primary" data-act="ov" data-v="short">Shortlist</button>':''}${c.st!=='no'?'<button class="btn" data-act="ov" data-v="no">Don\'t shortlist</button>':''}${S.ov[c.id]?'<button class="btn ghost" data-act="ov" data-v="">Undo my decision</button>':''}</div>`:''}`}
+function gridHTML(){const cellH=(p,s)=>{const x=S.g[p][s],k=cst(p,s),sel=S.sel&&S.sel[0]===p&&S.sel[1]===s?' sel':'';if(k==='empty'||k==='gone')return `<div><div class="cell ${k}">${k==='gone'?'Cancelled':'Free'}</div></div>`;const c=BY.get(x.id),tag=k==='live'?'Live now':k==='done'?'Done':k==='noshow'?'No-show':x.sb?'From standby':x.mv?'Moved here':AREA[c.area];return `<div><button class="cell ${k}${x.mv&&k==='sched'?' mv':''}${sel}" data-act="cell" data-v="${p}-${s}" aria-label="${esc(c.name)}, ${fmt12(SLOTS[s])}, ${tag}">${esc(c.short)}<span class="tag">${tag}</span></button></div>`};
+const hd=SLOTS.map((t,i)=>(i===4?'<div class="gh lunch" aria-label="Lunch"></div>':'')+`<div class="gh">${fmt12(t)}</div>`).join(''),more=SLOTS.some(t=>t>S.clock);
+return `<div class="grid"><div class="gh">Panel</div>${hd}${PANELS.map((P,p)=>`<div class="pan">${P.name}<small>${AREA[P.area]} panel</small>${S.out.has(p)?`<span class="hint">Out from ${fmt12(S.outAt[p])}</span>`:more?`<button class="mini" data-act="drop" data-v="${p}">Drop out</button>`:''}</div>${SLOTS.map((_,s)=>(s===4?'<div class="lunch"></div>':'')+cellH(p,s)).join('')}`).join('')}</div>`}
+function slotbar(){if(!S.sel)return '<span class="hint" style="margin:0">Pick a slot to see who\'s in it. Drag the clock past 10:00 AM, mark a no-show, or drop a panel and watch the plan repair itself.</span>';const [p,s]=S.sel,x=S.g[p][s],c=BY.get(x.id),k=cst(p,s);return `<span><b>${esc(c.name)}</b>, ${fmt12(SLOTS[s])} with ${PANELS[p].name}. Score ${c.score.toFixed(1)}.</span><button class="mini" data-act="open" data-v="${c.id}">Open profile</button>${k==='live'?'<button class="mini" data-act="noshow">Mark no-show</button>':''}`}
+function dcounts(){const all=[];S.g.forEach((r,p)=>r.forEach((_,s)=>all.push(cst(p,s))));const n=k=>all.filter(x=>x===k).length;return [[booked(),'booked'],[n('done'),'done'],[n('live'),'live now'],[S.standby.length,'on standby'],[S.noshow.length,'no-shows']].map(x=>`<div><dd>${x[0]}</dd><dt>${x[1]}</dt></div>`).join('')}
+const logHTML=()=>S.log.map(l=>`<li><time>${fmt12(l.t)}</time>${esc(l.m)}</li>`).join('')||'<li class="hint">Nothing has happened yet today.</li>';
+const vSchedule=()=>`<p class="lead">${booked()} interviews across ${PANELS.length} panels on Thursday 22 October, each matched to the panel's area where possible. Drag the clock to run the day.</p><div class="clock"><span class="big" id="clk">${fmt12(S.clock)}</span><input type="range" min="570" max="1020" step="15" value="${S.clock}" data-in="clock" aria-label="Time of day"><button class="btn ghost" data-act="reset">Reset the day</button></div><dl class="counts" id="dc">${dcounts()}</dl><div class="tablewrap" id="gw">${gridHTML()}</div><div class="slotbar" id="sbar">${slotbar()}</div><h3>Drive log</h3><ul class="log" id="log">${logHTML()}</ul>${nextBtn('notify','Draft the emails')}`;
+function mailHTML(G){const k=S.mg,L=G[k];if(EMAILG.includes(k)){const n=L.length,i=clamp(S.mi,0,n-1),it=L[i],v=vars(it),t=S.tpl[k];return `<div class="mail"><div class="mhead"><span>To: ${esc(it.c.email)}</span><span class="pager"><button class="mini" data-act="mi" data-v="-1" data-key="mprev" aria-label="Previous email">Prev</button><span>${i+1} of ${n}</span><button class="mini" data-act="mi" data-v="1" data-key="mnext" aria-label="Next email">Next</button></span></div><div class="subj">${esc(merge(t.subject,v))}</div><pre class="body">${esc(merge(t.body,v))}</pre></div>`}
+if(k==='held')return `<div class="tablewrap"><table><thead><tr><th>Candidate</th><th class="r">Score</th><th>Why it's held</th></tr></thead><tbody>${L.map(it=>`<tr><td><button class="who" data-act="open" data-v="${it.c.id}">${esc(label(it.c))}</button></td><td class="r">${it.c.score.toFixed(1)}</td><td>${esc(it.c.flag)}${S.ai[it.c.id]?`<span class="ai">${LEAN[S.ai[it.c.id].lean]}</span>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+return `<div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Campus</th><th>Message</th></tr></thead><tbody>${L.map(it=>`<tr><td>${esc(it.c.name)}</td><td>${esc(it.c.phone||'Missing')}</td><td>${esc(it.c.campus)}</td><td>${GL[it.k]}${it.a?', '+fmt12(SLOTS[it.a.s]):''}</td></tr>`).join('')}</tbody></table></div>`}
+function tplHTML(G){const k=S.mg;if(k==='held')return '<h3>Held for review</h3><p class="hint">These candidates hear nothing until someone decides. Open a profile to shortlist or pass.</p>';if(k==='phone')return '<h3>Call instead</h3><p class="hint">These candidates have no valid email address. Call each one with the message for their group.</p>';const t=S.tpl[k];
+return `<h3>Template for ${GL[k].toLowerCase()}, used in ${pl(G[k].length,'email')}</h3><label class="hint" for="tsub">Subject</label><input type="text" id="tsub" data-in="tsub" value="${esc(t.subject)}"><label class="hint" for="tbody">Body</label><textarea id="tbody" data-in="tbody">${esc(t.body)}</textarea><p class="hint">Merge fields: {first} {time} {panel} {team} {project} {skill} {stage}</p>
+<div class="airow">${S.sample?`<label class="vh" for="tone">Tone</label><select id="tone">${Object.keys(TONE).map(x=>`<option value="${x}">${TONE[x][0]}</option>`).join('')}</select><button class="btn" data-act="rewrite"${S.busy==='tpl'?' disabled':''}>${S.busy==='tpl'?'Rewriting…':'Rewrite with Claude'}</button>`:''}<button class="btn ghost" data-act="treset">Reset template</button></div>`}
+function vNotify(){const G=groups();if(!G[S.mg].length)S.mg=GORDER.find(k=>G[k].length)||'invite';const e=emailCount(G);
+return `<p class="lead">${e} emails drafted, each with the candidate's own time, panel and strongest skill.${G.phone.length?' '+pl(G.phone.length,'candidate')+' with no valid email '+(G.phone.length===1?'needs':'need')+' a call.':''}</p><div class="groups">${GORDER.filter(k=>G[k].length).map(k=>`<button class="f" aria-pressed="${k===S.mg}" data-act="mg" data-v="${k}" data-key="g${k}">${GL[k]} ${G[k].length}</button>`).join('')}</div>
+<div class="notify"><div id="mw">${G[S.mg].length?mailHTML(G):''}</div><div class="tpl">${tplHTML(G)}</div></div>${S.dl?'<div class="row-acts"><button class="btn" data-act="xmail">Export mail merge (CSV)</button></div>':''}${nextBtn('report','See the founder report')}`}
+function vReport(){const f=facts(),d=decisions(f),mx=f.cs.length?f.cs[0].r||1:1;
+const plain=`<div class="brief-text"><p>${f.applied} applications came in for the Software Engineer drive from ${f.campuses} campuses. After merging ${f.dup} duplicates, ${f.unique} candidates remain; ${f.took} took the online test and ${f.eligible} met the eligibility criteria.</p><p>${f.shortlisted} are shortlisted and ${f.booked} interviews are booked for Thursday${f.standby?', with '+f.standby+' on standby for Friday':''}.${f.review?' '+pl(f.review,'borderline candidate')+' still '+(f.review===1?'needs':'need')+' a decision.':''}</p></div>`;
+const brief=S.briefAI!=null&&!S.showPlain?`<div class="brief-text" id="briefAI">${esc(S.briefAI)||'Thinking…'}</div><p class="hint">Claude's draft, written only from the numbers on this page. <button class="mini" data-act="plain">Show the plain version</button></p>`:plain+(S.sample?`<div class="row-acts"><button class="btn" data-act="brief"${S.busy==='brief'?' disabled':''}>Rewrite for the founders with Claude</button></div>`:'');
+return `<div class="cols2"><div><h2>Founder brief</h2>${brief}<h3>Decisions needed</h3>${d.length?`<ol class="decisions">${d.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p class="hint">Nothing needs a decision right now.</p>'}</div>
+<div><h2>Shortlist rate by campus</h2><p class="hint">Campuses with five or more candidates. Amber bars sit below the overall rate of ${Math.round(f.overall*100)}%.</p><div class="bars">${f.cs.map(x=>`<div class="row"><span>${esc(x.k)}</span><div class="track2"><div class="fill${x.r<f.overall?' low':''}" style="width:${x.r/mx*100}%"></div></div><span class="r">${x.s} of ${x.a}</span></div>`).join('')||'<p class="hint">Not enough candidates per campus yet.</p>'}</div>
+<dl class="counts">${[[f.unique,'candidates'],[f.shortlisted,'shortlisted'],[f.booked,'booked'],[f.emails,'emails drafted']].map(x=>`<div><dd>${x[0]}</dd><dt>${x[1]}</dt></div>`).join('')}</dl>${S.dl?'<div class="row-acts"><button class="btn" data-act="xtrack">Export candidate tracker (CSV)</button></div>':''}</div></div>`}
+const V={clean:vClean,screen:vScreen,schedule:vSchedule,notify:vNotify,report:vReport};
+function render(){const k=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.key;renderHero();renderTabs();$('#view').innerHTML=V[S.tab]();if(S.open)$('#sheet').innerHTML=sheetHTML(BY.get(S.open));if(k){const e=document.querySelector(`[data-key="${k}"]`);if(e&&!e.disabled)e.focus()}}
+function animate(to){const els=[...document.querySelectorAll('#stages .n')],from=to.map(()=>to[0]);if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const t0=performance.now(),step=now=>{const t=now-t0,cur=to.map((v,i)=>{const p=clamp((t-i*120)/520,0,1);return Math.round(from[i]+(v-from[i])*(1-Math.pow(1-p,3)))});cur.forEach((v,i)=>els[i].textContent=v);band(cur);if(t<1120)requestAnimationFrame(step);else{to.forEach((v,i)=>els[i].textContent=v);band(to)}};requestAnimationFrame(step)}
+function load(text,src){const tab=parseCSV(text.replace(/^\uFEFF/,''));if(tab.length<2){toast('That file has no data rows. Use a CSV with a header row.');return false}const m=mapCols(tab[0]);if(m.name==null&&m.email==null){toast("Couldn't find a name or email column. Add a header row with Name and Email.");return false}S.tab0=tab;S.map=m;S.src=src;S.ran=false;S.tab='clean';S.filter='all';S.all=false;closeSheet();return true}
+function doRun(){const t0=performance.now();S.D=clean(S.tab0,S.map);BY=new Map(S.D.rows.map(c=>[c.id,c]));S.ov={};S.ai={};S.briefAI=null;S.showPlain=false;screen();plan();S.ms=Math.max(1,Math.round(performance.now()-t0));S.ran=true;S.tab='clean';S.mg='invite';S.mi=0;render();animate(counts())}
+function recompute(){screen();plan();renderHero();if(S.tab==='screen')$('#res').innerHTML=resHTML()}
+function openSheet(id,b){S.open=id;S.opener=b;$('#sheet').innerHTML=sheetHTML(BY.get(id));$('#sheet').hidden=false;$('#scrim').hidden=false;$('#sheet [data-act="close"]').focus()}
+function closeSheet(){if(!S.open)return;S.open=null;$('#sheet').hidden=true;$('#scrim').hidden=true;if(S.opener&&document.contains(S.opener))S.opener.focus()}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),4200)}
+const DEAD=['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'];
+function aiErr(e){const c=e&&e.code;if(c==='cancelled')return;if(DEAD.includes(c)){S.sample=null;toast("Claude isn't available in this view, so those buttons are hidden.");return}toast(c==='rate_limited'?'Claude is busy right now. Try again in a minute.':c==='invalid_json'?"Claude's answer came back in the wrong shape. Try again.":c==='refused'?"Claude didn't answer that one.":"Claude couldn't finish. Try again.")}
+async function deep(){const q=S.D.rows.filter(c=>c.st==='review').sort(byScore).slice(0,12);if(!q.length)return;S.busy='deep';$('#res').innerHTML=resHTML();
+const lv=x=>S.req.filter(r=>r.lv===x).map(r=>r.label).join(', ')||'none';
+const prompt=`You are helping a campus recruiter at a cloud communications company decide on borderline candidates for a Software Engineer (campus 2027) role.\n\nMust-have skills: ${lv('must')}\nNice-to-have skills: ${lv('nice')}\nShortlist cutoff: ${S.cut} out of 100. The score mixes online test, skills match, CGPA and projects.\n\nJudge only the job-relevant evidence below. Names, campuses and contact details are deliberately left out; do not guess them.\n\nFor each candidate return {"id": string, "lean": "shortlist" | "hold" | "pass", "why": one plain sentence under 22 words, "ask": one interview question that would settle the doubt}. Reply with only a JSON array, one object per candidate, in the same order.\n\nCandidates:\n`+JSON.stringify(q.map(c=>({id:c.id,score:c.score,flag:c.flag,test:c.test,cgpa:c.cgpa,backlogs:c.backlogs,skills:c.skills,missing_must_haves:c.mustMiss,projects:c.projects,internship:c.intern})));
+try{const r=await S.sample.json(prompt,{modelTier:'quick'});let n=0;if(Array.isArray(r))for(const o of r)if(o&&BY.has(String(o.id))&&LEAN[o.lean]){S.ai[String(o.id)]={lean:o.lean,why:String(o.why||''),ask:String(o.ask||'')};n++}toast(n?'Claude gave a second read on '+pl(n,'candidate')+'. You still make the call.':"Claude's answer didn't match these candidates. Try again.")}catch(e){aiErr(e)}
+S.busy='';render()}
+async function rewrite(){const k=S.mg,t=S.tpl[k],tone=$('#tone').value;S.busy='tpl';render();
+const prompt=`Rewrite this recruiting email so it reads ${TONE[tone][1]}. Keep every placeholder in curly braces exactly as written, such as {first} and {time}, and keep every fact. Under 130 words. Sign off as Plivo Talent Team. Reply with only JSON: {"subject": string, "body": string}.\n\nSubject: ${t.subject}\n\nBody:\n${t.body}`;
+try{const r=await S.sample.json(prompt,{modelTier:'quick',cache:false}),need=(t.subject+t.body).match(/\{\w+\}/g)||[],got=String((r&&r.subject||'')+(r&&r.body||''));if(!r||!r.subject||!r.body||need.some(x=>!got.includes(x)))toast("Claude's rewrite dropped a merge field, so the template wasn't changed.");else{S.tpl[k]={subject:String(r.subject),body:String(r.body)};toast('Template rewritten. Every email in this group now uses it.')}}catch(e){aiErr(e)}
+S.busy='';render()}
+async function aiBrief(){const f=facts();S.busy='brief';S.briefAI='';S.showPlain=false;render();
+const prompt=`Write a short update for the founders of a 100-person tech company about today's campus hiring drive for Software Engineers. Plain text only: 3 to 4 sentences, no greeting, no headings, no bullet points, no sign-off. Lead with what needs their decision. Use only these facts:\n`+JSON.stringify({...f,cs:f.cs.map(x=>({campus:x.k,candidates:x.a,shortlisted:x.s})),decisions:decisions(f)});
+try{const r=await S.sample(prompt,{modelTier:'quick',cache:false,onText:({text})=>{S.briefAI=text;const e=$('#briefAI');if(e)e.textContent=text}});S.briefAI=r.text}catch(e){S.briefAI=e&&e.text?e.text:null;aiErr(e)}
+S.busy='';if(S.tab==='report')render()}
+async function save(name,rows){if(!S.dl)return;try{await S.dl.save({filename:name,data:toCSV(rows)});toast('Saved '+name+'.')}catch(e){const c=e&&e.code;if(c==='declined')return;if(['unavailable','not_granted','capability_disabled','capability_removed'].includes(c)){S.dl=null;render()}toast("Couldn't save the file here.")}}
+const ACT={run:doRun,tab:v=>{S.tab=v;render();$('#steps').scrollIntoView({block:'start'})},
+req:v=>{const r=S.req[+v];r.lv=r.lv==='must'?'nice':r.lv==='nice'?'off':'must';recompute();$('#ctrl').innerHTML=ctrlHTML();$(`[data-key="req${v}"]`).focus()},
+filter:v=>{S.filter=v;S.all=false;$('#res').innerHTML=resHTML();$(`[data-key="f${v}"]`).focus()},all:()=>{S.all=true;$('#res').innerHTML=resHTML()},
+open:(v,b)=>openSheet(v,b),close:closeSheet,
+ov:v=>{if(v)S.ov[S.open]=v;else delete S.ov[S.open];recompute();$('#sheet').innerHTML=sheetHTML(BY.get(S.open));$('#sheet [data-act="close"]').focus();toast('Saved. The interview plan was rebuilt around your decision.')},
+deep,cell:v=>{S.sel=v.split('-').map(Number);sched(v)},noshow:()=>{noShow(...S.sel);S.sel=null;sched();renderHero()},
+drop:v=>{dropPanel(+v);sched();renderHero()},reset:()=>{resetDay();render()},
+mg:v=>{S.mg=v;S.mi=0;render()},mi:v=>{const n=groups()[S.mg].length;S.mi=((S.mi+ +v)%n+n)%n;$('#mw').innerHTML=mailHTML(groups());$(`[data-key="${+v>0?'mnext':'mprev'}"]`).focus()},
+rewrite,treset:()=>{S.tpl[S.mg]=JSON.parse(JSON.stringify(TPL0[S.mg]));render()},brief:aiBrief,plain:()=>{S.showPlain=true;render()},
+xmail:()=>{const G=groups();save('drive-mail-merge.csv',[['Group','Name','Email','Subject','Body'],...EMAILG.flatMap(k=>G[k].map(it=>{const v=vars(it);return [GL[k],it.c.name,it.c.email,merge(S.tpl[k].subject,v),merge(S.tpl[k].body,v)]}))])},
+xtrack:()=>{const m=at();save('drive-tracker.csv',[['ID','Name','Email','Phone','Campus','Branch','CGPA','Backlogs','Test','Score','Status','Reason','Interview','Panel','Skills'],...S.rank.map(c=>{const a=m.get(c.id);return [c.id,c.name,c.email||'',c.phone||'',c.campus,c.branch,c.cgpa??'',c.backlogs,c.test??'Absent',c.score,ST[c.st][1],c.st==='out'?c.why.join('; '):c.flag,a?fmt12(SLOTS[a.s]):S.standby.includes(c.id)?'Standby':'',a?PANELS[a.p].name:'',c.skills.join('; ')]})])}};
+function sched(k){$('#clk').textContent=fmt12(S.clock);$('#dc').innerHTML=dcounts();$('#gw').innerHTML=gridHTML();$('#sbar').innerHTML=slotbar();$('#log').innerHTML=logHTML();if(k){const e=$(`[data-act="cell"][data-v="${k}"]`);if(e)e.focus()}}
+function IN(id,t){if(id.startsWith('w.')||id==='cut'||id==='minCg'){const v=+t.value;if(id.startsWith('w.'))S.w[id.slice(2)]=v;else S[id]=v;$('#o-'+id.replace('.','\\.')).textContent=id==='minCg'?v.toFixed(1):v;recompute()}
+else if(id==='bl'){S.bl=t.checked;recompute()}else if(id==='blind'){S.blind=t.checked;$('#res').innerHTML=resHTML()}
+else if(id==='clock'){S.clock=+t.value;sched()}else if(id==='tsub'||id==='tbody'){S.tpl[S.mg][id==='tsub'?'subject':'body']=t.value;const G=groups();$('#mw').innerHTML=mailHTML(G)}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled&&ACT[b.dataset.act])ACT[b.dataset.act](b.dataset.v,b)});
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.in&&t.type!=='checkbox')IN(t.dataset.in,t)});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.in&&t.type==='checkbox')IN(t.dataset.in,t)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+$('#scrim').addEventListener('click',closeSheet);
+$('#file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{if(load(String(r.result),f.name))doRun()};r.onerror=()=>toast("Couldn't read that file. Try saving it again as CSV.");r.readAsText(f);e.target.value=''});
+load(SAMPLE,'sample');render();
+(async()=>{if(!window.claude||!window.claude.use)return;const [sm,dl]=await Promise.all([window.claude.use('sample').catch(()=>null),window.claude.use('downloads').catch(()=>null)]);S.sample=sm;S.dl=dl;if(S.ran&&(sm||dl)&&!document.activeElement.matches('input,textarea,select'))render()})();
+</script>
+</body>
+</html>
